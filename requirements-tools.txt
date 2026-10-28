@@ -1,0 +1,9 @@
+# What the team's own tools need: analysis/, annotation/ and model/.
+# The versions are the ones they were written and tested with.
+#
+#   python -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r requirements-tools.txt      (Windows)
+numpy==2.5.4
+pandas==3.1.0
+matplotlib==3.11.2
+opencv-python-headless==5.0.0

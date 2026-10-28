@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Annotazione possesso</title>
+<style>
+:root {
+  --bg: #111613; --panel: #1a211c; --line: #2c3830; --ink: #e4ece6; --muted: #93a59a;
+  --home: #3b82d6; --away: #d9534a; --dead: #8a949c; --none: #2a302c; --accent: #5cc08a;
+  --warn: #e0b84c; --mono: Consolas, "JetBrains Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 "Segoe UI", system-ui, sans-serif; }
+header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+header h1 { font-size: 16px; margin: 0; font-weight: 700; }
+header label { color: var(--muted); }
+select, button { font: inherit; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 5px 9px; }
+button { cursor: pointer; }
+button:hover, select:hover { border-color: var(--muted); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); }
+#saved { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+#saved.err { color: var(--away); font-weight: 700; }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 0; height: calc(100% - 52px); }
+@media (max-width: 1100px) { main { grid-template-columns: 1fr; height: auto; } }
+.left { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; min-width: 0; }
+.stage { position: relative; background: #000; border-radius: 4px; overflow: hidden; display: flex; justify-content: center; }
+.stage img { display: block; max-width: 100%; max-height: calc(100vh - 250px); }
+#banner { position: absolute; left: 12px; top: 12px; background: rgba(224,184,76,.95); color: #1b1503; padding: 6px 10px; border-radius: 4px; font-weight: 600; }
+#timeline { width: 100%; height: 56px; display: block; cursor: pointer; border-radius: 4px; background: var(--panel); }
+.info { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; font-family: var(--mono); font-size: 13px; }
+.info .big { font-size: 20px; font-weight: 700; }
+.chip { display: inline-block; min-width: 26px; text-align: center; padding: 1px 7px; border-radius: 4px; color: #fff; font-family: var(--mono); font-weight: 700; }
+.chip.H { background: var(--home); } .chip.A { background: var(--away); } .chip.D { background: var(--dead); } .chip.X { background: var(--none); color: var(--muted); }
+.muted { color: var(--muted); }
+aside { border-left: 1px solid var(--line); padding: 12px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+aside h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 0 0 6px; }
+.now { display: flex; align-items: center; gap: 12px; }
+.now .chip { font-size: 26px; padding: 4px 16px; }
+#changes { max-height: 260px; overflow-y: auto; border: 1px solid var(--line); border-radius: 4px; }
+#changes table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+#changes td { padding: 4px 8px; border-bottom: 1px solid var(--line); cursor: pointer; }
+#changes tr.cur td { background: #24302a; }
+#changes tr:hover td { background: #202923; }
+.doubt { color: var(--warn); font-weight: 700; }
+.keys { display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; font-size: 12.5px; }
+.keys kbd { font-family: var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; white-space: nowrap; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+#compare table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+#compare td, #compare th { padding: 3px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+.bad { color: var(--away); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Annotazione possesso</h1>
+  <span><label>Annotatore</label> <b id="who">…</b></span>
+  <span><label for="clip">Spezzone</label> <select id="clip"></select></span>
+  <span><label for="speed">Velocità</label>
+    <select id="speed"><option value="0.25">0,25×</option><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></span>
+  <button id="ovBtn" type="button">Overlay tracking: no</button>
+  <span id="saved">—</span>
+</header>
+<main>
+  <section class="left">
+    <div class="stage"><img id="frame" alt="fotogramma del video"><div id="banner" hidden></div></div>
+    <canvas id="timeline" title="Clic per saltare a quel punto"></canvas>
+    <div class="info">
+      <span>frame <span class="big" id="fNum">—</span></span>
+      <span>video <span class="big" id="fClock">—</span></span>
+      <span id="fPos" class="muted">—</span>
+      <span id="fBall" class="muted">—</span>
+      <span id="fPlay" class="muted">pausa</span>
+    </div>
+  </section>
+  <aside>
+    <div>
+      <h2>Stato in questo frame</h2>
+      <div class="now"><span id="curChip" class="chip X">?</span><span id="curText" class="muted">nessuna etichetta</span></div>
+    </div>
+    <div>
+      <h2>Cambi segnati (<span id="nChanges">0</span>)</h2>
+      <div id="changes"><table><tbody id="changesBody"></tbody></table></div>
+    </div>
+    <div class="row">
+      <button id="doneBtn" type="button">Segna spezzone come completato</button>
+      <button id="cmpBtn" type="button" hidden>Confronta con la verità</button>
+    </div>
+    <div id="compare" hidden></div>
+    <div>
+      <h2>Tasti</h2>
+      <div class="keys">
+        <kbd>H</kbd><span>da qui ha la palla il Barcellona</span>
+        <kbd>A</kbd><span>da qui ha la palla l'Athletic</span>
+        <kbd>D</kbd><span>da qui palla morta</span>
+        <kbd>Canc / ⌫</kbd><span>cancella il cambio che vale in questo frame</span>
+        <kbd>F</kbd><span>segna o togli un dubbio su quel cambio</span>
+        <kbd>N</kbd><span>aggiungi una nota a quel cambio</span>
+        <kbd>Ctrl+Z / U</kbd><span>annulla</span>
+        <kbd>Spazio</kbd><span>play / pausa</span>
+        <kbd>← →</kbd><span>1 frame (0,04 s)</span>
+        <kbd>Shift+← →</kbd><span>5 frame (0,2 s)</span>
+        <kbd>↓ ↑ / Ctrl+← →</kbd><span>25 frame (1 s)</span>
+        <kbd>PagSu PagGiù</kbd><span>125 frame (5 s)</span>
+        <kbd>, .  oppure [ ]</kbd><span>cambio precedente / successivo</span>
+        <kbd>Home End</kbd><span>inizio / fine dello spezzone</span>
+        <kbd>1 2 3 4</kbd><span>velocità 0,25× 0,5× 1× 2×</span>
+        <kbd>O</kbd><span>mostra / nascondi il tracking sopra il video</span>
+        <kbd>G</kbd><span>vai a un numero di frame</span>
+      </div>
+    </div>
+    <p class="muted">Ogni modifica si salva da sola sul tuo computer. Il protocollo (dove mettere il segno) è in <code>annotation/README.md</code>.</p>
+  </aside>
+</main>
+<script>
+"use strict";
+var FPS = 25;
+var COLORS = { H: "#3b82d6", A: "#d9534a", D: "#8a949c", X: "#2a302c" };
+var S = { cfg: null, clip: null, changes: [], done: false, frame: 0, shown: null, shownOv: null,
+          playing: false, speed: 1, overlay: false, undo: [], saveTimer: null, unsaved: false,
+          missing: [], wanted: null, inflight: false, lastTick: 0 };
+
+function $(id) { return document.getElementById(id); }
+function clock(f) {
+  var s = f / FPS, m = Math.floor(s / 60), r = s - 60 * m;
+  return m + ":" + (r < 10 ? "0" : "") + r.toFixed(2).replace(".", ",");
+}
+function store(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* private window */ } }
+function recall(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+function api(path, options) {
+  return fetch(path, options).then(function (r) {
+    return r.json().then(function (j) {
+      if (!r.ok || j.error) { throw new Error(j.error || r.statusText); }
+      return j;
+    });
+  });
+}
+
+function setSaved(text, error) { var el = $("saved"); el.textContent = text; el.className = error ? "err" : ""; }
+
+function governing(f) {
+  var found = null;
+  for (var i = 0; i < S.changes.length; i++) {
+    if (S.changes[i].frame <= f) { found = S.changes[i]; } else { break; }
+  }
+  return found;
+}
+function ballMissingAt(f) {
+  for (var i = 0; i < S.missing.length; i++) {
+    if (f >= S.missing[i][0] && f <= S.missing[i][1]) { return true; }
+  }
+  return false;
+}
+
+/* ---------- clips ---------- */
+function clipOptionText(c) {
+  var p = S.cfg.progress[c.id] || { n_changes: 0, done: false };
+  var setName = { calib: "calibrazione", tune: "regolazione", test: "controllo" }[c.set] || c.set;
+  var status = p.done ? "✓ completato" : (p.n_changes ? p.n_changes + " cambi" : "da fare");
+  return c.id + " · " + setName + " · " + (c.half === 1 ? "1°" : "2°") + " tempo · " + clock(c.start) +
+         " · palla mancante " + Math.round(100 * c.ball_missing) + "% · " + status;
+}
+function fillClips() {
+  var sel = $("clip"); sel.innerHTML = "";
+  S.cfg.plan.clips.forEach(function (c) {
+    var o = document.createElement("option"); o.value = c.id; o.textContent = clipOptionText(c); sel.appendChild(o);
+  });
+}
+function refreshClipOption() {
+  var sel = $("clip");
+  for (var i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === S.clip.id) { sel.options[i].textContent = clipOptionText(S.clip); }
+  }
+}
+
+function loadClip(id) {
+  stop();
+  if (S.unsaved) { save(); }
+  return api("/api/clip?clip=" + encodeURIComponent(id)).then(function (j) {
+    S.clip = j.clip; S.changes = j.annotation.changes; S.done = j.annotation.done; S.missing = j.ball_missing;
+    S.undo = []; S.shown = null;
+    $("clip").value = id;
+    store("clip:" + S.cfg.annotator, id);
+    var last = parseInt(recall("pos:" + S.cfg.annotator + ":" + id), 10);
+    $("cmpBtn").hidden = S.clip.set !== "calib";
+    $("compare").hidden = true;
+    show(isNaN(last) ? S.clip.start : last);
+    renderAll();
+    setSaved(j.annotation.updated ? "salvato " + j.annotation.updated.slice(11) : "nessun salvataggio ancora");
+  }).catch(function (e) { setSaved("ERRORE: " + e.message, true); });
+}
+
+/* ---------- frames ---------- */
+function show(f) {
+  if (!S.clip) { return; }
+  S.frame = Math.max(S.clip.start, Math.min(S.clip.end, f));
+  store("pos:" + S.cfg.annotator + ":" + S.clip.id, String(S.frame));
+  requestImage(S.frame);
+  renderInfo();
+  drawTimeline();
+  highlightCurrent();
+}
+function move(n) { stop(); show(S.frame + n); }
+
+function requestImage(f) {
+  S.wanted = f;
+  if (!S.inflight) { pump(); }
+}
+function fetchFrame(f, ov, attempts) {
+  /* A single failed request (a dropped connection, a busy decoder) should not stop the work:
+     try again a couple of times, a little later, before reporting it. */
+  return fetch("/api/frame?i=" + f + (ov ? "&ov=1" : "")).then(function (r) {
+    if (r.ok) { return r.blob(); }
+    return r.json().then(function (j) { throw new Error(j.error || ("frame " + f + " non disponibile")); },
+                         function () { throw new Error("frame " + f + " non disponibile"); });
+  }).catch(function (e) {
+    if (attempts <= 1) { throw e; }
+    return new Promise(function (resolve) { setTimeout(resolve, 400); }).then(function () {
+      return fetchFrame(f, ov, attempts - 1);
+    });
+  });
+}
+function pump() {
+  if (S.wanted === null || (S.wanted === S.shown && S.shownOv === S.overlay)) {
+    S.inflight = false;
+    if (S.playing) { tick(); }
+    return;
+  }
+  S.inflight = true;
+  var f = S.wanted, ov = S.overlay;
+  fetchFrame(f, ov, 3).then(function (blob) {
+    var img = $("frame"), old = img.src;
+    img.src = URL.createObjectURL(blob);
+    if (old && old.indexOf("blob:") === 0) { URL.revokeObjectURL(old); }
+    S.shown = f; S.shownOv = ov;
+    pump();
+  }).catch(function (e) {
+    S.inflight = false; stop(); setSaved("ERRORE: " + e.message, true);
+  });
+}
+
+/* ---------- playback ---------- */
+function play() {
+  if (S.playing || !S.clip) { return; }
+  if (S.frame >= S.clip.end) { return; }
+  S.playing = true; S.lastTick = performance.now(); renderInfo();
+  if (!S.inflight) { tick(); }
+}
+function stop() { if (S.playing) { S.playing = false; renderInfo(); } }
+function tick() {
+  if (!S.playing) { return; }
+  var step = S.speed >= 2 ? 2 : 1;
+  var interval = 1000 * step / (FPS * S.speed);
+  var wait = Math.max(0, interval - (performance.now() - S.lastTick));
+  setTimeout(function () {
+    if (!S.playing) { return; }
+    S.lastTick = performance.now();
+    if (S.frame + step > S.clip.end) { stop(); return; }
+    show(S.frame + step);
+  }, wait);
+}
+function setSpeed(v) { S.speed = v; $("speed").value = String(v); }
+
+/* ---------- editing ---------- */
+function pushUndo() { S.undo.push(JSON.stringify(S.changes)); if (S.undo.length > 300) { S.undo.shift(); } }
+function setLabel(label) {
+  if (!S.clip) { return; }
+  stop();
+  var g = governing(S.frame);
+  if (g && g.frame !== S.frame && g.label === label) {
+    setSaved("già " + label + " da frame " + g.frame + ": nessun cambio aggiunto");
+    return;
+  }
+  pushUndo();
+  if (g && g.frame === S.frame) { g.label = label; }
+  else {
+    S.changes.push({ frame: S.frame, label: label, doubt: false, note: "" });
+    S.changes.sort(function (a, b) { return a.frame - b.frame; });
+  }
+  changed();
+}
+function deleteChange() {
+  var g = governing(S.frame);
+  if (!g) { return; }
+  pushUndo();
+  S.changes = S.changes.filter(function (c) { return c !== g; });
+  changed();
+  setSaved("cancellato il cambio al frame " + g.frame);
+}
+function toggleDoubt() {
+  var g = governing(S.frame);
+  if (!g) { return; }
+  pushUndo(); g.doubt = !g.doubt; changed();
+}
+function editNote() {
+  var g = governing(S.frame);
+  if (!g) { return; }
+  var text = window.prompt("Nota per il cambio al frame " + g.frame, g.note || "");
+  if (text === null) { return; }
+  pushUndo(); g.note = text.slice(0, 200); changed();
+}
+function undo() {
+  if (!S.undo.length) { return; }
+  S.changes = JSON.parse(S.undo.pop()); changed();
+}
+function jumpChange(direction) {
+  stop();
+  var target = null;
+  for (var i = 0; i < S.changes.length; i++) {
+    var f = S.changes[i].frame;
+    if (direction > 0 && f > S.frame) { target = f; break; }
+    if (direction < 0 && f < S.frame) { target = f; }
+  }
+  if (target !== null) { show(target); }
+}
+function changed() {
+  S.unsaved = true; renderAll();
+  setSaved("modifiche da salvare…");
+  clearTimeout(S.saveTimer);
+  S.saveTimer = setTimeout(save, 400);
+}
+function save() {
+  clearTimeout(S.saveTimer);
+  var body = JSON.stringify({ clip: S.clip.id, changes: S.changes, done: S.done });
+  return api("/api/annotation", { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
+    .then(function (j) {
+      S.unsaved = false;
+      setSaved("salvato " + j.saved.slice(11));
+      S.cfg.progress[S.clip.id] = { n_changes: j.n_changes, done: S.done };
+      refreshClipOption();
+    })
+    .catch(function (e) { setSaved("ERRORE nel salvataggio: " + e.message, true); });
+}
+
+/* ---------- rendering ---------- */
+function renderInfo() {
+  if (!S.clip) { return; }
+  $("fNum").textContent = String(S.frame);
+  $("fClock").textContent = clock(S.frame);
+  var total = (S.clip.end - S.clip.start + 1) / FPS, inside = (S.frame - S.clip.start) / FPS;
+  $("fPos").textContent = inside.toFixed(1).replace(".", ",") + " / " + total.toFixed(0) + " s nello spezzone";
+  $("fBall").textContent = ballMissingAt(S.frame) ? "tracking: palla non vista" : "tracking: palla vista";
+  $("fPlay").textContent = S.playing ? "▶ " + String(S.speed).replace(".", ",") + "×" : "pausa";
+  var g = governing(S.frame), chip = $("curChip");
+  chip.className = "chip " + (g ? g.label : "X");
+  chip.textContent = g ? g.label : "?";
+  $("curText").textContent = g ? ("dal frame " + g.frame + (g.doubt ? " · con dubbio" : "") + (g.note ? " · " + g.note : "")) : "nessuna etichetta";
+  var banner = $("banner");
+  if (!S.changes.length || S.changes[0].frame > S.clip.start) {
+    banner.hidden = false;
+    banner.textContent = "Lo spezzone deve partire con un'etichetta: premi Home e poi H, A o D.";
+  } else { banner.hidden = true; }
+  $("doneBtn").textContent = S.done ? "Completato ✓ (clic per riaprire)" : "Segna spezzone come completato";
+}
+
+function renderAll() {
+  renderInfo(); drawTimeline();
+  $("nChanges").textContent = String(S.changes.length);
+  var body = $("changesBody"); body.innerHTML = "";
+  S.changes.forEach(function (c) {
+    var tr = document.createElement("tr");
+    tr.dataset.frame = String(c.frame);
+    tr.innerHTML = "<td>" + c.frame + "</td><td>" + clock(c.frame) + "</td><td><span class='chip " + c.label + "'>" +
+      c.label + "</span></td><td class='doubt'>" + (c.doubt ? "?" : "") + "</td><td class='muted'></td>";
+    tr.lastChild.textContent = c.note || "";
+    tr.addEventListener("click", function () { stop(); show(c.frame); });
+    body.appendChild(tr);
+  });
+  highlightCurrent();
+}
+function highlightCurrent() {
+  var g = governing(S.frame), rows = $("changesBody").children;
+  for (var i = 0; i < rows.length; i++) {
+    rows[i].className = g && rows[i].dataset.frame === String(g.frame) ? "cur" : "";
+  }
+}
+
+function drawTimeline() {
+  if (!S.clip) { return; }
+  var canvas = $("timeline"), ratio = window.devicePixelRatio || 1;
+  var w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== Math.round(w * ratio)) { canvas.width = Math.round(w * ratio); canvas.height = Math.round(h * ratio); }
+  var ctx = canvas.getContext("2d");
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  var a = S.clip.start, n = S.clip.end - S.clip.start + 1;
+  function x(f) { return (f - a) / n * w; }
+  ctx.fillStyle = COLORS.X; ctx.fillRect(0, 6, w, 26);
+  for (var i = 0; i < S.changes.length; i++) {
+    var c = S.changes[i], next = i + 1 < S.changes.length ? S.changes[i + 1].frame : S.clip.end + 1;
+    ctx.fillStyle = COLORS[c.label]; ctx.fillRect(x(c.frame), 6, Math.max(1, x(next) - x(c.frame)), 26);
+    ctx.fillStyle = c.doubt ? "#e0b84c" : "#ffffff"; ctx.fillRect(x(c.frame), 2, c.doubt ? 3 : 1.5, 34);
+  }
+  ctx.fillStyle = "#e4ece6"; ctx.fillRect(0, 40, w, 8);
+  ctx.fillStyle = "#5a2f2b";
+  S.missing.forEach(function (m) { ctx.fillRect(x(m[0]), 40, Math.max(1, x(m[1] + 1) - x(m[0])), 8); });
+  ctx.fillStyle = "#93a59a"; ctx.font = "10px Segoe UI, sans-serif";
+  ctx.fillText("palla nel tracking (rosso scuro = non vista)", 4, h - 0.5);
+  ctx.fillStyle = "#5cc08a"; ctx.fillRect(x(S.frame) - 1, 0, 2, 50);
+}
+
+/* ---------- comparison (calibration only) ---------- */
+function compare() {
+  if (S.unsaved) { save(); }
+  api("/api/compare?clip=" + encodeURIComponent(S.clip.id)).then(function (r) {
+    var box = $("compare"); box.hidden = false;
+    var med = r.median_offset === null ? "—" : (r.median_offset > 0 ? "+" : "") + r.median_offset + " frame (" +
+      (r.median_offset / FPS).toFixed(2).replace(".", ",") + " s)";
+    var html = "<h2>Confronto con la verità</h2><p>spellF1 <b>" + r.spell_f1 + "</b> · macroF1 " + r.macro_f1 +
+      "<br>possessi: tuoi " + r.n_yours + ", veri " + r.n_true +
+      "<br>ritardo mediano dei tuoi segni: " + med + " (positivo = in ritardo)" +
+      "<br>cambi in più rispetto alla verità: " + r.n_extra_changes +
+      (r.unlabelled_frames ? "<br><span class='bad'>frame senza etichetta: " + r.unlabelled_frames + "</span>" : "") +
+      "</p><table><tr><th>frame vero</th><th>cambio</th><th>tuo scarto</th></tr>";
+    r.transitions.forEach(function (t) {
+      html += "<tr data-frame='" + t.frame + "'><td>" + t.frame + "</td><td>" + t.change + "</td><td>" +
+        (t.offset === null ? "<span class='bad'>mancato</span>" : (t.offset > 0 ? "+" : "") + t.offset) + "</td></tr>";
+    });
+    box.innerHTML = html + "</table>";
+    var rows = box.querySelectorAll("tr[data-frame]");
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].style.cursor = "pointer";
+      rows[i].addEventListener("click", function () { stop(); show(parseInt(this.dataset.frame, 10)); });
+    }
+  }).catch(function (e) { setSaved("ERRORE: " + e.message, true); });
+}
+
+/* ---------- wiring ---------- */
+document.addEventListener("keydown", function (e) {
+  var tag = e.target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || (tag === "SELECT" && e.key !== " ")) { return; }
+  var k = e.key, big = e.ctrlKey || e.metaKey, handled = true;
+  if (k === "ArrowRight") { move(big ? 25 : (e.shiftKey ? 5 : 1)); }
+  else if (k === "ArrowLeft") { move(-(big ? 25 : (e.shiftKey ? 5 : 1))); }
+  else if (k === "ArrowUp") { move(25); }
+  else if (k === "ArrowDown") { move(-25); }
+  else if (k === "PageDown") { move(125); }
+  else if (k === "PageUp") { move(-125); }
+  else if (k === " ") { if (S.playing) { stop(); } else { play(); } }
+  else if (k === "Home") { move(-1e9); }
+  else if (k === "End") { move(1e9); }
+  else if ((k === "z" || k === "Z") && big) { undo(); }
+  else if (big) { handled = false; }
+  else if (k === "h" || k === "H") { setLabel("H"); }
+  else if (k === "a" || k === "A") { setLabel("A"); }
+  else if (k === "d" || k === "D") { setLabel("D"); }
+  else if (k === "Backspace" || k === "Delete") { deleteChange(); }
+  else if (k === "f" || k === "F") { toggleDoubt(); }
+  else if (k === "n" || k === "N") { editNote(); }
+  else if (k === "u" || k === "U") { undo(); }
+  else if (k === "," || k === "[") { jumpChange(-1); }
+  else if (k === "." || k === "]") { jumpChange(1); }
+  else if (k === "o" || k === "O") { toggleOverlay(); }
+  else if (k === "g" || k === "G") { gotoFrame(); }
+  else if (k === "1" || k === "2" || k === "3" || k === "4") { setSpeed([0.25, 0.5, 1, 2][parseInt(k, 10) - 1]); }
+  else { handled = false; }
+  if (handled) { e.preventDefault(); }
+});
+function toggleOverlay() {
+  S.overlay = !S.overlay;
+  $("ovBtn").textContent = "Overlay tracking: " + (S.overlay ? "sì" : "no");
+  requestImage(S.frame);
+}
+function gotoFrame() {
+  stop();
+  var text = window.prompt("Vai al frame (" + S.clip.start + "–" + S.clip.end + ")", String(S.frame));
+  var f = parseInt(text, 10);
+  if (!isNaN(f)) { show(f); }
+}
+$("clip").addEventListener("change", function () { loadClip(this.value); this.blur(); });
+$("speed").addEventListener("change", function () { setSpeed(parseFloat(this.value)); this.blur(); });
+$("ovBtn").addEventListener("click", function () { toggleOverlay(); this.blur(); });
+$("doneBtn").addEventListener("click", function () { S.done = !S.done; changed(); this.blur(); });
+$("cmpBtn").addEventListener("click", function () { compare(); this.blur(); });
+$("timeline").addEventListener("click", function (e) {
+  if (!S.clip) { return; }
+  var rect = this.getBoundingClientRect();
+  var f = S.clip.start + Math.round((e.clientX - rect.left) / rect.width * (S.clip.end - S.clip.start + 1));
+  stop(); show(f);
+});
+window.addEventListener("resize", drawTimeline);
+window.addEventListener("beforeunload", function (e) {
+  if (S.unsaved) { save(); e.preventDefault(); e.returnValue = ""; }
+});
+
+api("/api/config").then(function (cfg) {
+  S.cfg = cfg;
+  $("who").textContent = cfg.annotator;
+  if (cfg.video_frames !== cfg.expected_frames) {
+    setSaved("ATTENZIONE: il video ha " + cfg.video_frames + " frame invece di " + cfg.expected_frames, true);
+  }
+  fillClips();
+  var last = recall("clip:" + cfg.annotator);
+  var ids = cfg.plan.clips.map(function (c) { return c.id; });
+  return loadClip(last && ids.indexOf(last) >= 0 ? last : ids[0]);
+}).catch(function (e) { setSaved("ERRORE: " + e.message, true); });
+</script>
+</body>
+</html>

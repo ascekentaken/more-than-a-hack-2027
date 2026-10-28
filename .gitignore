@@ -62,3 +62,9 @@ __pycache__/
 venv/
 env/
 .DS_Store
+
+# -- local analysis output (derived from the gated match data; never publish) -------------------
+analysis_out/
+
+# -- hand annotations (labels for the match: never publish, like submissions) ---------------
+annotation/labels/
