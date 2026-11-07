@@ -68,3 +68,6 @@ analysis_out/
 
 # -- hand annotations (labels for the match: never publish, like submissions) ---------------
 annotation/labels/
+
+# -- external datasets (large; downloaded by external/dfl.py) ----------------------------------
+external_data/

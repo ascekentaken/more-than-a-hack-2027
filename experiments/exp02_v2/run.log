@@ -1,0 +1,68 @@
+features for every match and scenario (cached after the first run)
+  ready in 136 s
+
+1. leave-one-match-out on the TUNE matches
+  fold J03WMX done in 49 s
+  fold J03WOH done in 49 s
+  fold J03WOY done in 50 s
+  fold J03WPY done in 50 s
+  fold J03WQQ done in 50 s
+  out-of-fold frame accuracy (argmax, no decoder) 0.904
+  decoder start spellF1 0.5601
+  round 1 switch_team  -> 6.0    spellF1 0.5650
+  round 1 enter_dead   -> 60.0   spellF1 0.5671
+  round 1 exit_dead    -> 4.0    spellF1 0.5677
+  round 1 dead_bias    -> 0.0    spellF1 0.5677
+  round 2 switch_team  -> 6.0    spellF1 0.5677
+  round 2 enter_dead   -> 60.0   spellF1 0.5677
+  round 2 exit_dead    -> 4.0    spellF1 0.5677
+  round 2 dead_bias    -> 0.0    spellF1 0.5677
+
+v1 re-tuned on the matched scenarios
+start: spellF1 0.3995
+  round 1 switch_team        -> 10     spellF1 0.3995  (2 s)
+  round 1 switch_dead        -> 100    spellF1 0.4043  (1 s)
+  round 1 dead_speed_mid     -> 1.5    spellF1 0.4054  (2 s)
+  round 1 dead_speed_slope   -> 1.5    spellF1 0.4066  (2 s)
+  round 1 dead_ball_missing  -> 1.2    spellF1 0.4066  (1 s)
+  round 1 dead_ball_outside  -> 8.0    spellF1 0.4066  (1 s)
+  round 1 dead_ball_fast     -> -5.0   spellF1 0.4104  (1 s)
+  round 1 team_scale_m       -> 0.2    spellF1 0.4104  (1 s)
+  round 1 team_reach_m       -> 0.5    spellF1 0.4104  (1 s)
+  round 1 team_decay_m       -> 1.0    spellF1 0.4104  (1 s)
+  round 2 switch_team        -> 10     spellF1 0.4104  (2 s)
+  round 2 switch_dead        -> 50     spellF1 0.4153  (2 s)
+  round 2 dead_speed_mid     -> 1.75   spellF1 0.4159  (1 s)
+  round 2 dead_speed_slope   -> 1.5    spellF1 0.4159  (1 s)
+  round 2 dead_ball_missing  -> 0.7    spellF1 0.4175  (1 s)
+  round 2 dead_ball_outside  -> 8.0    spellF1 0.4175  (1 s)
+  round 2 dead_ball_fast     -> -5.0   spellF1 0.4175  (1 s)
+  round 2 team_scale_m       -> 0.2    spellF1 0.4175  (1 s)
+  round 2 team_reach_m       -> 0.5    spellF1 0.4175  (1 s)
+  round 2 team_decay_m       -> 1.0    spellF1 0.4175  (1 s)
+  round 3 switch_team        -> 10     spellF1 0.4175  (2 s)
+  round 3 switch_dead        -> 50     spellF1 0.4175  (1 s)
+  round 3 dead_speed_mid     -> 1.75   spellF1 0.4175  (1 s)
+  round 3 dead_speed_slope   -> 1.0    spellF1 0.4192  (1 s)
+  round 3 dead_ball_missing  -> 0.7    spellF1 0.4192  (1 s)
+  round 3 dead_ball_outside  -> 5.0    spellF1 0.4196  (1 s)
+  round 3 dead_ball_fast     -> -5.0   spellF1 0.4196  (1 s)
+  round 3 team_scale_m       -> 0.2    spellF1 0.4196  (1 s)
+  round 3 team_reach_m       -> 0.5    spellF1 0.4196  (1 s)
+  round 3 team_decay_m       -> 1.0    spellF1 0.4196  (1 s)
+  round 4 switch_team        -> 10     spellF1 0.4196  (2 s)
+  round 4 switch_dead        -> 50     spellF1 0.4196  (1 s)
+  round 4 dead_speed_mid     -> 1.75   spellF1 0.4196  (1 s)
+  round 4 dead_speed_slope   -> 1.0    spellF1 0.4196  (1 s)
+  round 4 dead_ball_missing  -> 0.7    spellF1 0.4196  (1 s)
+  round 4 dead_ball_outside  -> 5.0    spellF1 0.4196  (1 s)
+  round 4 dead_ball_fast     -> -5.0   spellF1 0.4196  (1 s)
+  round 4 team_scale_m       -> 0.2    spellF1 0.4196  (1 s)
+  round 4 team_reach_m       -> 0.5    spellF1 0.4196  (1 s)
+  round 4 team_decay_m       -> 1.0    spellF1 0.4196  (1 s)
+
+2. HOLDOUT matches
+
+4. final v2 on all 7 matches
+
+written experiments\exp02_v2\results.md, model\v2_lgb.txt, model\params_v2.json

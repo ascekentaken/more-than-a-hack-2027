@@ -1,4 +1,4 @@
-# What the team's own tools need: analysis/, annotation/ and model/.
+# What the team's own tools need: analysis/, annotation/, model/ and external/.
 # The versions are the ones they were written and tested with.
 #
 #   python -m venv .venv
@@ -7,3 +7,6 @@ numpy==2.5.4
 pandas==3.1.0
 matplotlib==3.11.2
 opencv-python-headless==5.0.0
+numba==0.68.1
+lightgbm==4.7.0
+imageio-ffmpeg==0.8.1

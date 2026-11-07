@@ -1,0 +1,24 @@
+{
+ "params": {
+  "dead_speed_mid": 1.75,
+  "dead_speed_slope": 2.5,
+  "dead_ball_missing": 1.2,
+  "dead_ball_outside": 8.0,
+  "dead_ball_fast": -1.5,
+  "ball_fast_ms": 8.0,
+  "team_scale_m": 0.2,
+  "team_reach_m": 0.5,
+  "team_decay_m": 1.0,
+  "team_clip": 0.02,
+  "switch_team": 10,
+  "switch_dead": 50
+ },
+ "tuned_on": "open DFL / IDSSE matches J03WMX, J03WOH, J03WOY, J03WPY, J03WQQ (CC BY 4.0), degraded per external/degrade.py, scenarios independent, stoppage",
+ "objective": "mean spellF1 (evaluation/possession_metrics.py) over those matches and scenarios",
+ "tune_spellF1": 0.3927,
+ "holdout_not_used_in_search": [
+  "J03WN1",
+  "J03WR9"
+ ],
+ "written": "2026-11-05T12:12:09"
+}
