@@ -180,8 +180,8 @@ def hazard_gaps(rng, bins, graded, base, target, lengths):
         hazard[target <= have] = 0.0
 
 
-def degrade(data, scenario, seed):
-    """A degraded copy of an external match (layout of external/dfl.load)."""
+def degrade(data, scenario, seed, ball="iid"):
+    """A degraded copy of an external match (layout of external/dfl.load); ball: see ball_noise()."""
     if scenario not in SCENARIOS + MATCHED:
         raise ValueError(scenario)
     rng = np.random.RandomState(seed)
@@ -201,7 +201,7 @@ def degrade(data, scenario, seed):
         out["ps"][drop, c] = np.nan
 
     if scenario in MATCHED:
-        return degrade_matched(out, scenario, rng, graded, length, width)
+        return degrade_matched(out, scenario, rng, graded, length, width, ball)
 
     # the ball
     base = np.zeros(n, dtype=bool)
@@ -211,14 +211,30 @@ def degrade(data, scenario, seed):
             if rng.rand() < STOPPAGE_HIDE_SHARE:
                 base[max(s - rng.randint(0, pad + 1), 0):min(e + rng.randint(0, pad + 1), n)] = True
     missing = ball_mask(rng, n, graded, base)
-    out["bx"] = out["bx"] + rng.normal(0, BALL_NOISE_M / length, n).astype(np.float32)
-    out["by"] = out["by"] + rng.normal(0, BALL_NOISE_M / width, n).astype(np.float32)
+    return ball_noise(out, rng, missing, BALL_NOISE_M, ball, length, width)
+
+
+def ball_noise(out, rng, missing, sigma, ball, length, width):
+    """Noise on the seen ball, then the gaps. ball="iid": independent noise of sigma metres per
+    frame (exp02). ball="drift": external/ball_model.py, a slowly drifting error then smoothing,
+    fitted to how the challenge tracking moves the ball (exp03). The iid draws are made in both
+    cases, so the gaps and players of a seed are the same whichever ball is chosen."""
+    n = len(out["bx"])
+    clean_x, clean_y = out["bx"], out["by"]
+    out["bx"] = clean_x + rng.normal(0, sigma / length, n).astype(np.float32)
+    out["by"] = clean_y + rng.normal(0, sigma / width, n).astype(np.float32)
+    if ball == "drift":
+        import ball_model
+        out["bx"], out["by"] = ball_model.apply(clean_x, clean_y, length, width,
+                                                np.random.RandomState(rng.randint(2 ** 31)), ball_model.params())
+    elif ball != "iid":
+        raise ValueError(ball)
     out["bx"][missing] = np.nan
     out["by"][missing] = np.nan
     return out
 
 
-def degrade_matched(out, scenario, rng, graded, length, width):
+def degrade_matched(out, scenario, rng, graded, length, width, ball="iid"):
     """The ball part of the matched scenarios; players were already dropped by degrade()."""
     import challenge_profile as cp
     profile = cp.load()
@@ -241,9 +257,4 @@ def degrade_matched(out, scenario, rng, graded, length, width):
                 if b > a:
                     base[max(a, 0):min(b, n)] = True
     missing = hazard_gaps(rng, bins, graded, base & graded, target, lengths)
-    sigma = ball_noise_m()
-    out["bx"] = out["bx"] + rng.normal(0, sigma / length, n).astype(np.float32)
-    out["by"] = out["by"] + rng.normal(0, sigma / width, n).astype(np.float32)
-    out["bx"][missing] = np.nan
-    out["by"][missing] = np.nan
-    return out
+    return ball_noise(out, rng, missing, ball_noise_m(), ball, length, width)
