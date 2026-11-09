@@ -71,3 +71,6 @@ annotation/labels/
 
 # -- external datasets (large; downloaded by external/dfl.py) ----------------------------------
 external_data/
+
+# -- local run bookkeeping ----------------------------------------------------------------------
+*.pid

@@ -77,13 +77,18 @@ except ImportError:
 
 # -- data --------------------------------------------------------------------------------------
 
-def item(match_id, scenario, swap=False):
-    """(v2 feature table, truth codes, runs) of an external match; swap = seen from the other side."""
-    path = os.path.join(CACHE_DIR, "v2_{}_{}{}.npz".format(match_id, scenario, "_swap" if swap else ""))
+def item(match_id, scenario, swap=False, rep=0):
+    """(v2 feature table, truth codes, runs) of an external match; swap = seen from the other side.
+
+    rep > 0 is another random draw of the same degradation (exp02c trains on several); rep 0 is the
+    draw every evaluation uses.
+    """
+    path = os.path.join(CACHE_DIR, "v2_{}_{}{}{}.npz".format(
+        match_id, scenario, "_swap" if swap else "", "_r{}".format(rep) if rep else ""))
     if not os.path.isfile(path):
         data = dfl.load(match_id)
         if scenario != "clean":
-            data = degrade.degrade(data, scenario, SEED + sorted(dfl.MATCHES).index(match_id))
+            data = degrade.degrade(data, scenario, SEED + sorted(dfl.MATCHES).index(match_id) + 1000 * rep)
         team = 1 - data["team"] if swap else data["team"]
         columns = features_v2.compute(data["px"], data["py"], data["ps"], data["bx"], data["by"],
                                       team, data["half"], float(data["length"]), float(data["width"]))

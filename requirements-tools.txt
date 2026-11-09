@@ -1,12 +1,14 @@
-# What the team's own tools need: analysis/, annotation/, model/ and external/.
-# The versions are the ones they were written and tested with.
+# What the team's own tools need: analysis/, model/ and external/.
+# The versions are the ones they were written and tested with, on Python 3.12.
 #
 #   python -m venv .venv
 #   .venv\Scripts\python.exe -m pip install -r requirements-tools.txt      (Windows)
 numpy==2.5.4
 pandas==3.1.0
 matplotlib==3.11.2
-opencv-python-headless==5.0.0
+opencv-python-headless==5.0.0.93
 numba==0.68.1
+llvmlite==0.50.0
 lightgbm==4.7.0
+scipy==1.18.1
 imageio-ffmpeg==0.8.1

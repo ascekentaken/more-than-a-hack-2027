@@ -41,8 +41,8 @@ import v1  # noqa: E402
 RESULTS_DIR = os.path.join(ROOT, "evaluation", "results")
 
 
-def predict(table, table_swap, model, params):
-    prob = exp02.probabilities(model, table, table_swap)
+def predict(table, table_swap, models, params):
+    prob = np.mean([exp02.probabilities(m, table, table_swap) for m in models], axis=0)
     before_kickoff = (table["half"].values == 2) & (table["frame"].values < v1.SECOND_HALF_KICKOFF)
     prob[before_kickoff] = [1e-4, 1e-4, 1.0]
     return np.array(pm.LABELS)[exp02.decode(prob, table["half"].values, params["decoder"])]
@@ -55,13 +55,15 @@ def main():
 
     with open(exp02.PARAMS_PATH, encoding="utf-8") as handle:
         params = json.load(handle)
-    model = lgb.Booster(model_file=exp02.MODEL_PATH)
+    # one model file, or an ensemble (exp02c) whose probabilities are averaged
+    files = [os.path.join(ROOT, f) for f in params.get("model_files", [])] or [exp02.MODEL_PATH]
+    models = [lgb.Booster(model_file=f) for f in files]
     table, table_swap = features_v2.challenge(), features_v2.challenge(swap=True)
     if params.get("relative_speeds"):
         table, table_swap = features_v2.relative_speeds(table), features_v2.relative_speeds(table_swap)
     if features_v2.feature_names(table) != params["features"]:
         raise SystemExit("feature list differs from the trained model: rerun external/exp02.py")
-    labels = predict(table, table_swap, model, params)
+    labels = predict(table, table_swap, models, params)
     v1.write(args.out, labels)
     problem = pm.validate_submission(pm.read_label_csv(args.out), v1.N_FRAMES)
     print("written {}  ({})".format(os.path.relpath(args.out, ROOT), problem or "valid submission"))
