@@ -1,0 +1,28 @@
+LC stacker written
+RS first stage written
+  leave-one-out J03WMX
+  leave-one-out J03WN1
+  leave-one-out J03WOH
+  leave-one-out J03WOY
+  leave-one-out J03WPY
+  leave-one-out J03WQQ
+  leave-one-out J03WR9
+written model/params_v9.json
+written evaluation\results\v9_raw.csv  (valid submission)
+graded frames: H 33%  A 22%  D 45%   possessions 255 (mean 13.7 s)
+
+score it:  python evaluation/run_evaluation.py
+v9_raw
+  macro F1 0.8267  (H 0.8774  A 0.8543  D 0.7483)   kappa 0.7540  acc 0.8476
+  bootstrap macroF1 5-95 pct  0.7156 .. 0.8796   (21 segments, 1000 draws)
+  per class          precision   recall       F1   support
+    H                 0.8519   0.9045   0.8774      3454
+    A                 0.8198   0.8917   0.8543      2577
+    D                 0.9078   0.6365   0.7483      1469
+  confusion  rows=GT cols=pred         H       A       D       X
+                          H        3124     330       0       0
+                          A         184    2298      95       0
+                          D         359     175     935       0
+                          X       48840   31978   70539   40462
+  transitions  gt 20  pred 18
+exit 0

@@ -1,0 +1,72 @@
+tables (new ball) for every match, scenario and side
+  ready in 5 min
+
+leave-one-match-out on TUNE
+  fold J03WMX (14 min so far)
+  fold J03WOH (22 min so far)
+  fold J03WOY (30 min so far)
+  fold J03WPY (38 min so far)
+  fold J03WQQ (46 min so far)
+  decoder search A
+    decoder start 0.5229
+    round 1 team_a      -> 6.0    spellF1 0.5229
+    round 1 enter_dead  -> 40.0   spellF1 0.5261
+    round 1 exit_dead   -> 10.0   spellF1 0.5261
+    round 1 dead_bias   -> 1.0    spellF1 0.5261
+    round 2 team_a      -> 6.0    spellF1 0.5261
+    round 2 enter_dead  -> 40.0   spellF1 0.5261
+    round 2 exit_dead   -> 10.0   spellF1 0.5261
+    round 2 dead_bias   -> 1.0    spellF1 0.5261
+  decoder search B
+    decoder start 0.5342
+    round 1 team_a      -> 6.0    spellF1 0.5342
+    round 1 enter_dead  -> 40.0   spellF1 0.5352
+    round 1 exit_dead   -> 14.0   spellF1 0.5357
+    round 1 dead_bias   -> 1.0    spellF1 0.5357
+    round 2 team_a      -> 6.0    spellF1 0.5357
+    round 2 enter_dead  -> 40.0   spellF1 0.5357
+    round 2 exit_dead   -> 14.0   spellF1 0.5357
+    round 2 dead_bias   -> 1.0    spellF1 0.5357
+  decoder search C
+    decoder start 0.5229
+    round 1 team_a      -> 6.0    spellF1 0.5229
+    round 1 team_b      -> 0.75   spellF1 0.5261
+    round 1 enter_dead  -> 40.0   spellF1 0.5291
+    round 1 exit_dead   -> 10.0   spellF1 0.5291
+    round 1 dead_bias   -> 1.0    spellF1 0.5291
+    round 2 team_a      -> 4.0    spellF1 0.5315
+    round 2 team_b      -> 2.0    spellF1 0.5327
+    round 2 enter_dead  -> 40.0   spellF1 0.5327
+    round 2 exit_dead   -> 10.0   spellF1 0.5327
+    round 2 dead_bias   -> 1.0    spellF1 0.5327
+    round 3 team_a      -> 2.0    spellF1 0.5332
+    round 3 team_b      -> 3.0    spellF1 0.5341
+    round 3 enter_dead  -> 40.0   spellF1 0.5341
+    round 3 exit_dead   -> 10.0   spellF1 0.5341
+    round 3 dead_bias   -> 1.0    spellF1 0.5341
+    round 4 team_a      -> 2.0    spellF1 0.5341
+    round 4 team_b      -> 3.0    spellF1 0.5341
+    round 4 enter_dead  -> 40.0   spellF1 0.5341
+    round 4 exit_dead   -> 10.0   spellF1 0.5341
+    round 4 dead_bias   -> 1.0    spellF1 0.5341
+  decoder search D
+    decoder start 0.5342
+    round 1 team_a      -> 6.0    spellF1 0.5342
+    round 1 team_b      -> 1.5    spellF1 0.5397
+    round 1 enter_dead  -> 40.0   spellF1 0.5408
+    round 1 exit_dead   -> 14.0   spellF1 0.5411
+    round 1 dead_bias   -> 1.0    spellF1 0.5411
+    round 2 team_a      -> 2.0    spellF1 0.5438
+    round 2 team_b      -> 2.0    spellF1 0.5440
+    round 2 enter_dead  -> 40.0   spellF1 0.5440
+    round 2 exit_dead   -> 14.0   spellF1 0.5440
+    round 2 dead_bias   -> 1.0    spellF1 0.5440
+    round 3 team_a      -> 2.0    spellF1 0.5440
+    round 3 team_b      -> 2.0    spellF1 0.5440
+    round 3 enter_dead  -> 40.0   spellF1 0.5440
+    round 3 exit_dead   -> 14.0   spellF1 0.5440
+    round 3 dead_bias   -> 1.0    spellF1 0.5440
+
+HOLDOUT
+
+chosen: D  (59 min)

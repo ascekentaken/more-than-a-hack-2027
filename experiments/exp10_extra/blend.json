@@ -1,0 +1,35 @@
+{
+ "adopt": true,
+ "E6": {
+  "sources": [
+   "exp06_TW",
+   "exp08_L",
+   "exp08_LC",
+   "exp07_RS",
+   "exp10_X",
+   "exp10_XC"
+  ],
+  "decoder": {
+   "team_a": 14.0,
+   "team_b": 0.25,
+   "enter_dead": 40.0,
+   "exit_dead": 14.0,
+   "dead_bias": 1.0
+  },
+  "cv_matched": 0.7221815404543555,
+  "cv_worst": 0.7020846781528212,
+  "holdout_matched": 0.6917490763888001
+ },
+ "v9": {
+  "cv_matched": 0.7076325740250766,
+  "cv_worst": 0.6915286823413714,
+  "holdout_matched": 0.6609412815347345,
+  "decoder": {
+   "team_a": 20.0,
+   "team_b": 0.5,
+   "enter_dead": 60.0,
+   "exit_dead": 6.0,
+   "dead_bias": 0.0
+  }
+ }
+}

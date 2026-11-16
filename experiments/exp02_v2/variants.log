@@ -1,0 +1,78 @@
+
+== base ==
+  fold J03WMX (72 s so far)
+  fold J03WOH (134 s so far)
+  fold J03WOY (197 s so far)
+  fold J03WPY (262 s so far)
+  fold J03WQQ (326 s so far)
+  decoder start spellF1 0.5601
+  round 1 switch_team  -> 6.0    spellF1 0.5650
+  round 1 enter_dead   -> 60.0   spellF1 0.5671
+  round 1 exit_dead    -> 4.0    spellF1 0.5677
+  round 1 dead_bias    -> 0.0    spellF1 0.5677
+  round 2 switch_team  -> 6.0    spellF1 0.5677
+  round 2 enter_dead   -> 60.0   spellF1 0.5677
+  round 2 exit_dead    -> 4.0    spellF1 0.5677
+  round 2 dead_bias    -> 0.0    spellF1 0.5677
+  CV matched 0.568  CV worst 0.356  holdout matched 0.538
+
+== mixed ==
+  fold J03WMX (536 s so far)
+  fold J03WOH (634 s so far)
+  fold J03WOY (732 s so far)
+  fold J03WPY (822 s so far)
+  fold J03WQQ (912 s so far)
+  decoder start spellF1 0.5505
+  round 1 switch_team  -> 6.0    spellF1 0.5559
+  round 1 enter_dead   -> 60.0   spellF1 0.5593
+  round 1 exit_dead    -> 10.0   spellF1 0.5593
+  round 1 dead_bias    -> 1.0    spellF1 0.5600
+  round 2 switch_team  -> 6.0    spellF1 0.5600
+  round 2 enter_dead   -> 90.0   spellF1 0.5614
+  round 2 exit_dead    -> 10.0   spellF1 0.5614
+  round 2 dead_bias    -> 1.0    spellF1 0.5614
+  round 3 switch_team  -> 6.0    spellF1 0.5614
+  round 3 enter_dead   -> 90.0   spellF1 0.5614
+  round 3 exit_dead    -> 10.0   spellF1 0.5614
+  round 3 dead_bias    -> 1.0    spellF1 0.5614
+  CV matched 0.561  CV worst 0.490  holdout matched 0.533
+
+== relative ==
+  fold J03WMX (1131 s so far)
+  fold J03WOH (1192 s so far)
+  fold J03WOY (1253 s so far)
+  fold J03WPY (1315 s so far)
+  fold J03WQQ (1376 s so far)
+  decoder start spellF1 0.5655
+  round 1 switch_team  -> 6.0    spellF1 0.5687
+  round 1 enter_dead   -> 60.0   spellF1 0.5717
+  round 1 exit_dead    -> 3.0    spellF1 0.5719
+  round 1 dead_bias    -> 0.0    spellF1 0.5719
+  round 2 switch_team  -> 6.0    spellF1 0.5719
+  round 2 enter_dead   -> 60.0   spellF1 0.5719
+  round 2 exit_dead    -> 3.0    spellF1 0.5719
+  round 2 dead_bias    -> 0.0    spellF1 0.5719
+  CV matched 0.572  CV worst 0.356  holdout matched 0.541
+
+== mixed+rel ==
+  fold J03WMX (1587 s so far)
+  fold J03WOH (1687 s so far)
+  fold J03WOY (1786 s so far)
+  fold J03WPY (1879 s so far)
+  fold J03WQQ (1977 s so far)
+  decoder start spellF1 0.5485
+  round 1 switch_team  -> 6.0    spellF1 0.5518
+  round 1 enter_dead   -> 40.0   spellF1 0.5555
+  round 1 exit_dead    -> 10.0   spellF1 0.5555
+  round 1 dead_bias    -> 1.0    spellF1 0.5581
+  round 2 switch_team  -> 6.0    spellF1 0.5581
+  round 2 enter_dead   -> 130.0  spellF1 0.5582
+  round 2 exit_dead    -> 10.0   spellF1 0.5582
+  round 2 dead_bias    -> 1.0    spellF1 0.5582
+  round 3 switch_team  -> 6.0    spellF1 0.5582
+  round 3 enter_dead   -> 130.0  spellF1 0.5582
+  round 3 exit_dead    -> 10.0   spellF1 0.5582
+  round 3 dead_bias    -> 1.0    spellF1 0.5582
+  CV matched 0.558  CV worst 0.486  holdout matched 0.534
+
+chosen: base  (36 min)

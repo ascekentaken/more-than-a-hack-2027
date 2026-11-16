@@ -1,0 +1,13 @@
+stacker x written
+stacker xc written
+written model/params_v11.json
+written evaluation\results\v11_raw.csv  (valid submission)
+graded frames: H 33%  A 20%  D 47%   possessions 246 (mean 13.7 s)
+
+score it:  python evaluation/run_evaluation.py
+submission,macro_f1,spell_f1_mean,poss,spell_bootstrap_low,spell_bootstrap_high,trans_f1_25
+v11_raw,0.851426,0.654545,16,0.484848,0.812121,0.600000
+v9_raw,0.826660,0.593548,14,0.412903,0.761290,0.421053
+v7_raw,0.832600,0.587500,15,0.412500,0.750322,0.461538
+v8_raw,0.816635,0.587500,15,0.412500,0.750000,0.450000
+exit 0

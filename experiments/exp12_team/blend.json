@@ -1,0 +1,31 @@
+{
+ "adopt": false,
+ "EY": {
+  "sources": [
+   "exp12_Y",
+   "exp12_YC"
+  ],
+  "decoder": {
+   "team_a": 28.0,
+   "team_b": 1.0,
+   "enter_dead": 20.0,
+   "exit_dead": 8.0,
+   "dead_bias": 0.25
+  },
+  "cv_matched": 0.7396095679272388,
+  "cv_worst": 0.7228672045396379,
+  "holdout_matched": 0.7215292178566517
+ },
+ "v11": {
+  "cv_matched": 0.7386149430352402,
+  "cv_worst": 0.7222401576981932,
+  "holdout_matched": 0.7293650550385355,
+  "decoder": {
+   "team_a": 28.0,
+   "team_b": 0.75,
+   "enter_dead": 28.0,
+   "exit_dead": 28.0,
+   "dead_bias": 1.0
+  }
+ }
+}

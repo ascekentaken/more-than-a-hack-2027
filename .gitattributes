@@ -1,0 +1,2 @@
+# Trained model files are read by LightGBM, which rejects Windows line endings: never convert them.
+model/*.txt -text

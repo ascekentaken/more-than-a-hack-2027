@@ -1,5 +1,25 @@
 # More than a Hack 2027 — Phase 1: Ball Possession
 
+> **Team noesi — our submission (model v11).** LightGBM models in two stages (a frame classifier and a change
+> detector, then two stackers that read their answers and 5–10 s of context) and a Viterbi decoder, trained and
+> tuned only on the open DFL matches (external data, CC BY 4.0). The match data is not in this
+> repository. Technical document: [docs/noesi.md](docs/noesi.md).
+>
+> To regenerate the submitted file from the data bundle (Python 3.12; data in `./data`, or set
+> `MTAH_DATA_DIR` to where you unpacked it):
+>
+> ```bash
+> python -m venv .venv
+> .venv/Scripts/python.exe -m pip install -r requirements-tools.txt   # Windows; .venv/bin/python elsewhere
+> .venv/Scripts/python.exe model/v3.py --params model/params_v11.json --out evaluation/results/noesi.csv
+> ```
+>
+> A few minutes on a laptop, no retraining (the trained models are in `model/`). Expected SHA-256
+> of `noesi.csv`: `8a7355e286aa40dfb2dbcc46d5fa85df98501e25d4f10d194503a376a22dfc49`. Check the
+> format with `python evaluation/validate_submission.py evaluation/results/noesi.csv`.
+>
+> The rest of this README is the organisers' description of the challenge, unchanged.
+
 **Organised by [Metrica Sports](https://metrica-sports.com), [FC Barcelona](https://www.fcbarcelona.com)
 and the [Mobile World Capital Barcelona](https://www.mwcbarcelona.com)**, at the Talent Arena in Barcelona.
 
