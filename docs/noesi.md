@@ -249,6 +249,16 @@ by the challenge's definition.
 | broadcast video and tracking | no | not aligned with the tactical source, and the tactical tracking was enough |
 | public ground truth | evaluation only | scored once per decision (section 2.6) |
 
+**Training data.** The only labelled data used to train and tune the submitted model:
+
+| dataset | source | who labelled it | how much |
+|---|---|---|---|
+| DFL / IDSSE open data (Bassek et al., Scientific Data 2025, CC BY 4.0) | Deutsche Fußball Liga, public download | the DFL's data provider: per-frame `BallStatus` and `BallPossession` shipped with the official tracking. We added no labels | 7 full matches (5 for tuning with cross-validation, 2 held out), about 1 million frames at 25 Hz |
+
+None of it comes from the provided game. The Metrica sample data (2 matches, labels rebuilt by us
+from Metrica's own event logs) was used in experiments only and is not in the submitted model. The
+public 5 minutes were used only to check the pipeline, once after each decision.
+
 Before the organisers' clarification we built a tool to hand-label frames of the challenge match.
 No hand label was ever used by any model, and the tool is not part of this submission.
 
