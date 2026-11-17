@@ -1,4 +1,4 @@
-# Team noesi — technical document
+# Team noesi: technical document
 
 More than a Hack 2027, Phase 1: Ball Possession. Submission file: `noesi.csv` (model **v11**).
 
@@ -28,8 +28,8 @@ Three findings shaped the final model:
 - the DFL labels count every touch (median possession 3.7 s), while the challenge counts only
   *controlled* possession, so the decoder is tuned on DFL labels rewritten to that
   definition (exp07);
-- possession is a pattern in time, not a property of one frame: giving the stacker the sequence of
-  touches and the collective movement of the teams gave the largest single gain (exp10, exp11).
+- possession shows over several seconds, so giving the stacker the sequence of touches and the
+  movement of both teams gave the largest single gain (exp10, exp11).
 
 | | DFL, leave-one-match-out CV (controlled-possession labels) | DFL, 2 held-out matches | public 5 minutes, spellF1 / macroF1 |
 |---|---|---|---|
@@ -77,7 +77,7 @@ All of this is measured on the challenge **input** only, never on its ground tru
   τ 2.0), fitted to the challenge's touch rate, ball acceleration and turn-angle distributions.
 - **Dead ball** (exp04). In the DFL data the ball stays perfectly still where it went out
   (0 m of movement in every stoppage), then jumps to the restart spot (more than 5 m in 60% of
-  restarts). That is a convention of corrected data, not what a camera sees. Our dead-ball model
+  restarts). This comes from how the corrected data is produced; a camera would see something else. Our dead-ball model
   rolls the ball out with decaying speed and hides it, or carries it to the restart spot. It
   places the ball there for a while and picks it up late after the restart. Its six parameters
   are fitted by grid search to eight input-only statistics of the challenge tracking, such as the
@@ -136,18 +136,18 @@ third frame.
   - *Final model:* the stacker learns on leave-one-match-out first-stage answers for all seven
     matches.
 
-  **The submitted stackers (exp08, exp10, exp11).** v11 averages two stackers that see more than
+  **Stackers in the submission (exp08, exp10, exp11).** v11 averages two stackers that see more than
   the one above (`external/exp06.py: long_context, extra_context`), all computed from the 76
   signals, never from labels:
   - *long context (exp08):* for how many frames the players have been / will stay slow, the ball
     still, the ball still next to a player, the ball unseen; frames since / until the ball is
     kicked; means of player speed, ball speed and ball seen over the 5 and 10 s before and after;
-  - *pass chains (exp10):* the number of touches in a row by the same team up to t and from t on —
-    a completed pass is the strongest evidence of controlled possession, a lone touch between two
-    touches of the other team is a deflection;
+  - *pass chains (exp10):* the number of touches in a row by the same team up to t and from t on.
+    A completed pass is the strongest evidence of controlled possession, while a lone touch between
+    two touches of the other team is usually a deflection;
   - *collective movement (exp10):* the displacement of each team's centroid over ±1 s and ±3 s, the
-    change of each team's width and depth over ±2 s, the ball's advance over ±1 s and ±3 s — the
-    team that wins the ball spreads and moves forward, the other one contracts and retreats;
+    change of each team's width and depth over ±2 s, the ball's advance over ±1 s and ±3 s. When
+    a team wins the ball it usually spreads and moves up, and the other team drops back;
   - *ball jumps (exp10):* how far the ball moved across a tracking gap and the speed that implies
     (a ball that reappears where it could not have travelled means a stoppage in between);
   - *restarts (exp10):* for how long the ball has been / will stay still on a touchline or goal line.
@@ -181,7 +181,7 @@ maximise spellF1 on out-of-fold predictions of the tuning matches.
   the DFL result, we did not tune on it. We looked for a cause in the simulator or the labels that
   could be fixed from the input or the rule text, and wrote the fix as a new pre-registered
   experiment.
-- **Honesty notes.**
+- **Notes on the protocol.**
   - The idea behind exp04 came from exp03's public check, and the idea behind exp07 from exp06's.
   - The 2 s threshold of exp07 comes from the CHALLENGE.md text ("a player keeps the ball for a
     few seconds"), was fixed before the run and was never varied.
@@ -288,13 +288,13 @@ on DFL labels rewritten to the challenge's *controlled possession*:
 
 ## 5. Limitations
 
-- **Simulator, not reality.** All choices rest on degraded DFL matches. Twice a model that won on
-  DFL lost on the public window (frozen dead ball in exp03, label convention in exp06). Other
-  mismatches surely remain.
-- **The controlled-possession rewrite is a proxy.** One duration threshold cannot tell a controlled
+- **Everything rests on the simulator.** All choices were made on degraded DFL matches. Twice a model that won on
+  DFL lost on the public window (frozen dead ball in exp03, label convention in exp06). There are
+  certainly other mismatches we have not found.
+- **The controlled-possession rewrite is approximate.** One duration threshold cannot tell a controlled
   1.5 s interception, which should count, from a 2.5 s scramble, which should not. With more time
-  we would use DFL event data (passes, duels) to rewrite the labels by event rather than by
-  duration.
+  we would use DFL event data (passes, duels) to rewrite the labels from events instead of
+  durations.
 - **Short possessions and transition timing.** On the DFL held-out matches only about 40% of
   possession starts were taken within 1 s (diagnosis before exp04w). Touches are hard to see on a smoothed ball that is
   missing 41% of the time.
